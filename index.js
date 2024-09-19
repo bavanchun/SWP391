@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 
 const connection = require("./config/database");
 const authRouter = require("./routes/auth");
+const userRouter = require("./routes/user");
 const { default: mongoose } = require("mongoose");
 
 const app = express();
@@ -14,12 +15,11 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
-
+// AUTH ROUTER
 app.use("/v1/auth", authRouter);
-
-/// API router
-
-
+// user ROUTER 
+app.use("/v1/user" , userRouter);
+ 
 (async () => {
    try {
       await connection();
