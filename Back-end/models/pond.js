@@ -1,33 +1,35 @@
 const { default: mongoose } = require("mongoose");
 
-const pondSchema =  mongoose.Schema( {
-  elementID :  {
-    type : Number
-  } , 
-  shape :  { 
-    type : String 
+const pondSchema = mongoose.Schema(
+  {
+    elementID: {
+      type: Number,
+    },
+    shape: {
+      type: String,
+    },
+    desciption: {
+      type: String,
+    },
+    trees: {
+      type: String,
+    },
+    waterFlow: {
+      type: String,
+    },
+    light: {
+      type: String,
+    },
+    direction: {
+      type: [String],
+    },
+    image: {
+      type: String,
+    },
   },
-  desciption : {
-    type : String
-  },
-  trees : {
-    type : String
-  }, 
-  waterFlow  :   {
-    type : String
-  },
-  light :  { 
-    type  : String
+  {
+    timestamps: true,
   }
-  ,direction : {
-    type : [String]
-  }, 
-  image : {
-    type : String
-  }
+);
 
-}, {
-      timestamps: true,
-})
-
-module.exports =  mongoose.model('ponds',pondSchema);
+module.exports = mongoose.model("ponds", pondSchema);

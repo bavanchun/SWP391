@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
       maxlength: 20,
       unique: true,
     },
-    Name  : { 
+    name  : { 
       type : String, 
       
     } , 
@@ -41,11 +41,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    // gender : {
-    //   type: Number,
-    //   enum: [0, 1, 2], // Ví dụ: 0 - Nam, 1 - Nữ, 2 - Khác
-    // }
-    // ,
+    gender : {
+      type: Number,
+    // Ví dụ: 0 - Nam, 1 - Nữ
+    }
+    ,
     birthDate : {
       type : Date,
     },

@@ -1,12 +1,51 @@
 const User = require("../models/user");
 const packageMember = require("../models/packageMember");
 const bcrypt = require("bcrypt")
+const { MongoClient } = require("mongodb");
+const pagination = require("./pagination");
+
+require("dotenv").config();
 
 const useController = {
+   pagination : (collectionName) => { 
+      const client = new MongoClient(process.env.DB_URI);
+      const db = client.db("test");
+      return db.collection(collectionName);
+   } , 
   getAllUsr: async (req, res) => {
+    const userCollection =  useController.pagination("users");
+
     try {
-      const user = await User.find({});
-      res.status(200).json(user);
+      const page   =parseInt( req.query.page ) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const sortOrder =  req.query.sort ||  "asc";
+      const sortBy   = parseInt(req.query.sortBy) || 0; 
+
+      const sortByValue = ["Name"]
+      const sortOrderValue = sortOrder == "asc" ? 1 : -1;
+      const sortOptions = {
+        [sortByValue[sortBy]] : sortOrderValue
+      }
+      
+      const skip = (page -1 ) * limit;    
+      const user =  await userCollection.find().
+      sort(sortOptions)
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+      console.log(user);
+      
+      
+      
+      
+      return res.status(200).json({
+        currentPage: page,
+        totalPages: Math.ceil(user.length / limit),
+        totalDocuments: user.length,
+        data: user,
+      })
+      
+      
     } catch (err) {
       res.status(500).json(err);
     }
@@ -120,6 +159,66 @@ const useController = {
       return res.status(500).json(err);
     }
   },
+  search : async(req ,res) =>  {
+    const Cuser = useController.pagination("users");
+    try {
+      // const searchName = req.query.sName|| "";
+      // const searchUserName = req.query.sUserName ||  "";
+      const page  = req.query.page || 1;
+      const limit = req.query.limit || 10;
+    const{ 
+      searchName,
+      searchUserName,
+      sortBy, 
+      sortOrder,
+    } = req.query
+    
+      const skip = (page-1)*limit;
+      let sortOrderValue ;
+      // option sort 
+     switch (sortOrder) {
+      case "asc":
+        sortOrderValue = 1
+        break;
+      case "desc" : 
+        sortOrderValue = -1
+      break;
+      default:
+        sortOrderValue = 1
+        break;
+     }
+
+      
+      // storage 
+      let query = {}
+      if (searchName && !searchUserName) {
+         query.name = { 
+          $regex : searchName  , $options : "i"
+         }
+      }
+      if (!searchName && searchUserName ) { 
+        query.userName = {
+          $regex : searchUserName , $options : "i"
+        }
+      } 
+     if (!searchName && !searchUserName) {
+       query = { }
+     }
+    console.log(query);
+    
+     
+      
+      
+      const listCollection = await Cuser.find(query)
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+      
+      return res.status(200).json(listCollection);
+    } catch (err) {
+      return res.status(500).json(err)
+    }
+  }
 };
 
 module.exports = useController;

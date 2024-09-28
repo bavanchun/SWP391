@@ -7,6 +7,7 @@ const connection = require("./config/database");
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
 const fishRouter = require("./routes/fish");
+const pondRouter = require("./routes/pond");
 const { default: mongoose } = require("mongoose");
 const signInRouter = require("./routes/oauth")
 const app = express();
@@ -22,9 +23,10 @@ app.use("/v1/auth", authRouter);
 app.use("/v1/user" , userRouter);
 //  Sign in google
 app.use("/v1/Oauth" , signInRouter);
-// 
+//api  Fish
 app.use("/v1/fish" , fishRouter);
-
+// api ponds
+app.use("/v1/pond" ,pondRouter );
 (async () => {
    try {
       await connection();

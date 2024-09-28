@@ -4,7 +4,7 @@ const useController = require("../controller/userController")
 
 // GET all USER
 //  /v1/user/all
-router.get("/all",middlewareController.verifyToken, useController.getAllUsr);
+router.get("/", useController.getAllUsr);
 //  GET BY ID 
 // /v1/user/id=
 router.get("/id=:id" ,useController.getUserById);
@@ -16,6 +16,7 @@ router.delete("/id=:id" ,middlewareController.verifyTokenAdminAuth ,  useControl
 router.post ("/update/id=:id" ,middlewareController.verifyTokenAdminAuth,useController.updateUser); 
 // SUBCRIBE  Membership
 // /v1/user/subcribe
-router.post("/subcribe" , useController.subcribeMemberShip);
-
+router.post("/subcribe" ,middlewareController.verifyToken,  useController.subcribeMemberShip);
+// Search 
+router.get("/search",useController.search);
 module.exports = router;
