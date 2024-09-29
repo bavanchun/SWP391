@@ -19,7 +19,7 @@ router.delete(
 // /v1/user/id=
 router.post(
   "/update/id=:id",
-  // middlewareController.verifyTokenAdminAuth,
+  middlewareController.verifyTokenAdminAuth,
   useController.updateUser
 );
 // SUBCRIBE  Membership
