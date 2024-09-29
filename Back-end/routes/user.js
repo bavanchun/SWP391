@@ -15,6 +15,7 @@ router.delete(
   middlewareController.verifyTokenAdminAuth,
   useController.deleteUser
 );
+router.post("/create" , middlewareController.verifyTokenAdminAuth , useController.createUser)
 //  UPDATE by ID
 // /v1/user/id=
 router.post(
@@ -30,7 +31,7 @@ router.post(
   useController.subcribeMemberShip
 );
 // Search
-router.get("/search", useController.search);
+router.get("/search",middlewareController.verifyTokenAdminAuth, useController.search);
 
 // upload Image
 router.post("/uploadImage", upload.single("avatar"), useController.uploadImage);

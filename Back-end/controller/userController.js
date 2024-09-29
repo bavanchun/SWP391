@@ -58,6 +58,42 @@ const useController = {
       res.status(500).json(err);
     }
   },
+  createUser : async (req, res) => {
+    try {
+    
+      const  {
+       
+
+      } = req.body;
+
+      const data =  {
+        userName,
+        name , 
+        email, 
+        password,
+        admin,
+        phoneNumber, 
+        avatar, 
+        memberStatus, 
+        gender, 
+        birthDate, 
+
+      }
+      // hash  password
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(data.password , salt);
+        data.password = hashPassword;
+      }
+       
+    
+    const nUser =  new User(data); 
+    nUser.save();
+    return res.status(200).json( "successfull  create new User");
+    }catch (err) {
+      return res.status(500).json(err)
+    }
+  }, 
   updateUser: async (req, res) => {
     try {
       const idUser = req.params.id; 
@@ -167,7 +203,7 @@ const useController = {
       // request query
       const { searchName, searchUserName } = req.query;
 
-      const sortByValue = ["name", "createdAt"];
+      const sortByValue = ["name", "createdAt" ];
 
       let sortOrderValue;
       // option sort
