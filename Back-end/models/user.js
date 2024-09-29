@@ -2,7 +2,7 @@ const { default: mongoose } = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    UserName: {
+    userName: {
       type: String,
       require: true,
       minlength: 6,

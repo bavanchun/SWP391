@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken") 
+const multer = require("multer"); 
 
 const middlewareController =  {
     verifyToken : (req , res , next) => {
@@ -29,7 +30,8 @@ const middlewareController =  {
             return res.status(403).json("You not allowed to DELETE ")
          }
         }) 
-    }
+    },
+
 }
 
 module.exports = middlewareController

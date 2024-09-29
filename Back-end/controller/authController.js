@@ -32,7 +32,7 @@ const authController = {
       const salt = await bcrypt.genSalt(10);
       const hashed = await bcrypt.hash(req.body.password, salt);
 
-      const gender = Number.parseInt(req.body.birthDate);
+      const gender = Number.parseInt(req.body.gender);
       // create  a new user
       const newUser = await new User({
         userName: req.body.userName,
@@ -55,7 +55,7 @@ const authController = {
 
   loginUser: async (req, res) => {
     try {
-      const user = await User.findOne({ userName: req.body.userName });
+      const user = await User.findOne({ UserName: req.body.userName });
       if (!user) {
         return res.status(401).json("Wrong UserName");
       }
