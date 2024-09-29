@@ -4,7 +4,7 @@ const useController = require("../controller/userController");
 const upload = require("../middleware/multer");
 // GET all USER
 //  /v1/user/all
-router.get("/", useController.getAllUsr);
+router.get("/", middlewareController.verifyTokenAdminAuth,useController.getAllUsr);
 //  GET BY ID
 // /v1/user/id=
 router.get("/id=:id", useController.getUserById);

@@ -3,10 +3,14 @@ const multer = require("multer");
 
 const middlewareController =  {
     verifyToken : (req , res , next) => {
-        const token = req.headers.token; 
+        const token = req.headers.token || req.headers.authorization; 
+         
+        
         if (token) {
             // su dung cho headers khi co  "Bearer 12341"  token.split(" ")[1]
-            const accessToken =  token;
+            const accessToken = token.startsWith("Bearer ")
+              ? token.split(" ")[1]
+              : token;
         
             jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user ) => {
               if (err) {

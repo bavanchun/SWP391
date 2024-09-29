@@ -19,7 +19,7 @@ const useController = {
     const userCollection = useController.pagination("users");
 
     try {
-      const page = parseInt(req.query.page) || 1;
+      const page = parseInt(req.query.page) || 1; 
       const limit = parseInt(req.query.limit) || 10;
       const sortOrder = req.query.sort || "asc";
       const sortBy = parseInt(req.query.sortBy) || 0;
