@@ -2,6 +2,7 @@ const router = require("express").Router();
 const middlewareController = require("../controller/middlewareController");
 const useController = require("../controller/userController");
 const upload = require("../middleware/multer");
+const uploads = require("../middleware/multerConfig");
 // GET all USER
 //  /v1/user/all
 router.get("/", middlewareController.verifyTokenAdminAuth,useController.getAllUsr);
@@ -15,10 +16,10 @@ router.delete(
   middlewareController.verifyTokenAdminAuth,
   useController.deleteUser
 );
-router.post("/create" , middlewareController.verifyTokenAdminAuth , useController.createUser)
+router.post("/create" ,middlewareController.verifyTokenAdminAuth, useController.createUser)
 //  UPDATE by ID
 // /v1/user/id=
-router.post(
+router.put(
   "/update/id=:id",
   middlewareController.verifyTokenAdminAuth,
   useController.updateUser
@@ -36,4 +37,5 @@ router.get("/search",middlewareController.verifyTokenAdminAuth, useController.se
 // upload Image
 router.post("/uploadImage", upload.single("avatar"), useController.uploadImage);
 
+router.post("/uploadImages", uploads.array("post"), useController.uploadImages);
 module.exports = router;

@@ -29,53 +29,6 @@ async function getUserData(access_token) {
   }
 }
 
-/* GET home page */
-// router.get('/', async function(req, res) {
-
-//   const code = req.query.code;
-//   console.log('Authorization code:', code);
-
-//   if (!code) {
-//     return res.status(400).json({ error: 'Authorization code is missing' });
-//   }
-
-//   try {
-//     const redirectURL = 'http://localhost:8081/oauth';
-//     const clientId = process.env.CLIENT_ID;
-//     const clientSecret = process.env.CLIENT_SECRET;
-
-//     const oAuth2Client = new OAuth2Client(clientId, clientSecret, redirectURL);
-
-//     // Lấy token từ Google với authorization code
-//     const { tokens } = await oAuth2Client.getToken(code);
-//     if (!tokens || !tokens.access_token) {
-//       throw new Error('Failed to retrieve access token');
-//     }
-
-//     // Thiết lập token cho client
-//     oAuth2Client.setCredentials(tokens);
-//     console.info('Tokens acquired:', tokens);
-
-//     // Lấy thông tin người dùng từ access token
-//     const userData = await getUserData(tokens.access_token);
-//     // 
-//     const user = await new User({
-        
-//     })
-//         // Phản hồi với thông tin người dùng
-//     res.status(200).json({
-//       message: 'User successfully authenticated',
-//       user: userData,
-//     }); 
-
-
-
-//      } catch (error) {
-//     console.error('Error during OAuth2 authentication:', error);
-//     return res.status(500).json({ error: 'Authentication failed', details: error.message });
-//   }
-// });
-
 const Generate =  {
   accessToken : (user) => {
 
@@ -109,7 +62,7 @@ router.post('/signin' , async  function(req ,res) {
     avatar  : data.picture, 
     provider : "Google", 
     name : data.name, 
-    UserName : data.email,
+    userName : data.email,
     password : randomPass, 
 
   })

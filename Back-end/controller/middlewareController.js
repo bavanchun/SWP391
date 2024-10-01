@@ -34,7 +34,15 @@ const middlewareController =  {
             return res.status(403).json("You not allowed to DELETE ")
          }
         }) 
-    },
+    },verifyTokenMember : (req  ,res , next) => {
+      middlewareController.verifyToken(req ,res , () => {
+        if (req.user.memberStatus) {
+          next();
+        }else{
+          return  res.status(403).json("You need join ")
+        }
+      })
+    }  
 
 }
 

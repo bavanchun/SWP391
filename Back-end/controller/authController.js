@@ -9,8 +9,10 @@ const nodemailer = require("nodemailer");
 const authController = {
   accessToken: (user) => {
     return jwt.sign(
-      { id: user.id, admin: user.admin },
-      process.env.JWT_ACCESS_KEY,
+      { id: user.id, 
+        admin: user.admin,
+        memberStatus :  user.memberStatus },
+        process.env.JWT_ACCESS_KEY,
       { expiresIn: "15m" }
     );
   },
@@ -55,7 +57,7 @@ const authController = {
 
   loginUser: async (req, res) => {
     try {
-      const user = await User.findOne({ UserName: req.body.userName });
+      const user = await User.findOne({ userName: req.body.userName });
       if (!user) {
         return res.status(401).json("Wrong UserName");
       }

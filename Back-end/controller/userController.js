@@ -6,6 +6,8 @@ const pagination = require("./pagination");
 const cloudinary = require("../config/cloudinary");
 const upload = require("../middleware/multer");
 const { UploadStream } = require("cloudinary");
+const fs = require("fs");
+
 
 require("dotenv").config();
 
@@ -61,9 +63,17 @@ const useController = {
   createUser : async (req, res) => {
     try {
     
-      const  {
-       
-
+      const {
+        userName,
+        name,
+        email,
+        password,
+        admin,
+        phoneNumber,
+        avatar,
+        memberStatus,
+        gender,
+        birthDate,
       } = req.body;
 
       const data =  {
@@ -88,9 +98,12 @@ const useController = {
        
     
     const nUser =  new User(data); 
-    nUser.save();
-    return res.status(200).json( "successfull  create new User");
+    await nUser.save();
+    return res.status(200).json("successfull create new User");
     }catch (err) {
+      if (err.code === 11000) {
+        return res.status(500).json(err.errmsg);
+      }
       return res.status(500).json(err)
     }
   }, 
@@ -278,6 +291,52 @@ const useController = {
       }
     );
   },
+  uploadImages : async (req ,res ) => {
+    try { 
+       console.log(req.files);
+      // kiem tra xem các file có được upload
+       if (!req.files || req.files.length === 0) {
+         return res.status(400).json({
+           success: false,
+           message: "No files uploaded",
+         });
+       }
+    //
+
+      const uploadPromises = req.files.map((file) => {
+        return cloudinary.uploader.upload(file.path, {  
+          folder: "post",
+        });
+      });
+
+      const results = await Promise.all(uploadPromises);
+      console.log(" RESULT AFTER UPLOAD  CLOUDINARY  : "+ results);
+      
+      // lam trong thu muc upload sau khi  được upload lên cloud
+         req.files.forEach((file) => {
+           fs.unlink(file.path, (err) => {
+             if (err) {
+               console.error("Error deleting file:", err);
+             }
+           });
+         });
+   
+       const urls = results.map((result) => result.secure_url);
+      
+      return res.status(200).json(
+        {
+          success : true, 
+          data : urls
+        }
+      )
+     
+    }catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: "An error occurred while uploading the images",
+      });
+    }
+  }
 };
 
 module.exports = useController;
