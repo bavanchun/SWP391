@@ -40,7 +40,8 @@ const useController = {
         .limit(limit)
         .toArray();
       console.log(user);
-
+      const [password , ...others] = user;
+      
       return res.status(200).json({
         currentPage: page,
         totalPages: Math.ceil(user.length / limit),
@@ -157,8 +158,14 @@ const useController = {
       const packageType = req.body.packageType;
       const id = req.body.id;
 
+      console.log(id);
+      
       // check account id da dk goi member hay chua
-      const isExist = packageMember.find({ accountID: id });
+      const isExist = await packageMember
+        .findOne({ accountID: req.body.id })
+        .populate("accountID");
+      console.log(isExist);
+      
       if (isExist) {
         return res.status(403).json({ error: "account was subcribe member" });
       }
@@ -190,15 +197,15 @@ const useController = {
       });
 
       // update status member
-      const updateUser = await User.findByIdAndUpdate(id, {
-        memberStatus: true,
-      });
+      // const updateUser = await User.findByIdAndUpdate(id, {
+      //   memberStatus: true,
+      // });
 
       // save  to database
       const newpackageMembers = await packageMem.save();
-      updateUser.save();
+      
       // res to json
-      return res.status(200).json({ newpackageMembers });
+      return res.status(200).json({newpackageMembers , message : "need proccess payment"});
     } catch (err) {
       return res.status(500).json(err);
     }

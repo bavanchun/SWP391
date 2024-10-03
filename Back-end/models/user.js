@@ -53,13 +53,7 @@ const userSchema = new mongoose.Schema(
     provider :  {
       type : String,
     }
-    // memberships: [
-    //   {
-    //     packageType: { type: Number, enum: [0, 1, 2] }, // Package type
-    //     purchaseDate: { type: Date, default: Date.now }, // When the package was purchased
-    //     expiryDate: Date, // Expiration date based on the package type
-    //   },
-    // ],
+
   },
   {
     timestamps: true,

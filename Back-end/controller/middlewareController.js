@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken") 
 const multer = require("multer"); 
+const packageMember  = require("../models/packageMember");
 
 const middlewareController =  {
     verifyToken : (req , res , next) => {
@@ -35,14 +36,29 @@ const middlewareController =  {
          }
         }) 
     },verifyTokenMember : (req  ,res , next) => {
-      middlewareController.verifyToken(req ,res , () => {
+      middlewareController.verifyToken(req ,res , async () => {
+         console.log(req.user.id);
+         
         if (req.user.memberStatus) {
-          next();
+          const packageMem = await packageMember.find({accountID : req.user.id}).populate('accountID');
+          console.log(packageMem);
+          
+          if (packageMem) { 
+          const currentDate = new Date();
+          if (new Date(packageMember.expires) < currentDate) {
+            return  res.status(403).json("Membership expired , Please register again")
+          } 
+        }else {
+          return res.status(404).json("Not found memberShip");
+        }
+
+        next();
+   
         }else{
-          return  res.status(403).json("You need join ")
+          return  res.status(403).json("You need join Member ")
         }
       })
-    }  
+    }
 
 }
 

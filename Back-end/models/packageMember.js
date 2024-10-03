@@ -23,10 +23,6 @@ const packageMemberSchema = new mongoose.Schema(
 );
 
 
-const user  = new mongoose.Schema(
-  
-)
-
 
 
 

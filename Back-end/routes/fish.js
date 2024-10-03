@@ -13,31 +13,8 @@ router.delete('/deleteKoi/:id' ,middleware.verifyTokenAdminAuth, fishController.
 router.put('/updateKoi/:id' ,middleware.verifyTokenAdminAuth ,fishController.update);
 // v1/fish/search/
 router.get('/searchKoiName',fishController.search);
-router.get('/searchKoiColor' , fishController.searchColor)
+router.get('/searchKoiColor' , fishController.searchColor);
 // laya ra nhung co ca koi cung ban menh 
-router.get('/getKoiElement'  , async(req ,res) => {
-    try {
-    
-        console.log(req.elementID);
-        console.log("query "+req.query.elementID);
-        //get bang body
-        // const fishkoi = await fishkois.find({elementID : parseInt(data.elementID) });
-
-        //get bang query
-        const fishkoi = await fishkois.find({
-        elementID : parseInt(req.query.elementID)
-        });
-        console.log(typeof  fishkoi)
-        console.log(fishkoi.length);
-        
-          if (fishkoi.length === 0) {
-            return res.status(403).json("data is not found")
-        }
-     return    res.status(200).json({fishkois : fishkoi});
-        
-    }catch (err ) {
-       return  res.status(500).json({message  : err})
-    }
-})
+router.get('/getKoiElement'  , fishController.getKoiByElement);
 
 module.exports = router

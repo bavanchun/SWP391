@@ -8,6 +8,8 @@ const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
 const fishRouter = require("./routes/fish");
 const pondRouter = require("./routes/pond");
+const memberRouter =require("./routes/member");
+const paymentRouter  =require("./routes/payment");
 const { default: mongoose } = require("mongoose");
 const signInRouter = require("./routes/oauth")
 const app = express();
@@ -16,6 +18,8 @@ const port = process.env.PORT || 8888;
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded(true));
+
 
 // AUTH ROUTER
 app.use("/v1/auth", authRouter);
@@ -27,16 +31,20 @@ app.use("/v1/Oauth" , signInRouter);
 app.use("/v1/fish" , fishRouter);
 // api ponds
 app.use("/v1/pond" ,pondRouter );
-(async () => {
-   try {
-      await connection();
-      app.listen(port, () => {
-        console.log("server is running at " + port);
-      });
+// api  post ads 
+app.use("/v1/member", memberRouter);
 
-   } catch (error) {
-      console.log(error);
-      
-   }
+app.use("/v1/pay" , paymentRouter);
+
+
+(async () => {
+  try {
+    await connection();
+    app.listen(port, () => {
+      console.log("server is running at " + port);
+    });
+  } catch (error) {
+    console.log(error);
+  }
 })
 ();

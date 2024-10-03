@@ -33,7 +33,7 @@ const Generate =  {
   accessToken : (user) => {
 
     return jwt.sign(
-      { id: user.id, admin: user.admin },
+      { id: user.id, admin: user.admin, memberStatus: user.memberStatus },
       process.env.JWT_ACCESS_KEY,
       { expiresIn: "1d" }
     );
@@ -41,7 +41,7 @@ const Generate =  {
   refreshToken  : (user) => {
     
     return jwt.sign(
-      { id: user.id, admin: user.admin },
+      { id: user.id, admin: user.admin , memberStatus : user.memberStatus },
       process.env.JWT_REFRESH_KEY,
       { expiresIn: "2d" }
     );
