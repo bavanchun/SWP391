@@ -75,18 +75,7 @@ const fishController = {
       return res.status(500).json(err);
     }
   },
-  //  search : async (req, res) => {
-  //   try {
-  //     const keyword = req.query.key;
-  //     const page = parseInt(req.query.page || 1);
-  //     const limit =parseInt(req.query.limit || 10);
-  //     const result = await paginations.paginationForSearch(page, limit, "fishkois",keyword);
 
-  //    return res.status(200).json({result})
-  //   } catch (err) {
-  //     res.status(500).json(err);
-  //   }
-  //  } ,
 
 
    search : async (req, res) => {
@@ -97,12 +86,17 @@ const fishController = {
   
     
     try {
-      const search = req.query.search || "";
+      const searchName = req.query.searchName  || "";
+     // const searchColor = req.query.searchColor || "";
+      const searchColor = req.query.searchColor ?  req.query.searchColor.split(",") : [];
       const page = parseInt(req.query.page || 1);
       const limit = parseInt(req.query.limit || 10);
       const sortOrder = req.query.sortOrder || "asc";
       const sortBy = parseInt(req.query.sortBy) || 0;
-     
+
+      // tao doi tuong searh filter
+      const searchFilter = {};
+
       const skip = (page - 1) * limit;
       // xây dựng điều kiệm tìm kiếm
       const sortByValue = ["elementID", "koiName"];
@@ -115,13 +109,14 @@ const fishController = {
       
       // tim kiem thuoc ve color
       console.log(typeof color);
-    
+      // dieu kien 1 neu tim name
+      if (searchName)  searchFilter.koiName = { $regex: searchName, $options: "i" };
+      // dieu kien 2 tim color 
+      if (searchColor.length > 0)  {
+        searchFilter.colors = { $in: searchColor };
+      };
       
-      
-     const listCollection  = await Cfishkois.find({
-        koiName: { $regex: search, $options: "i" },
-    
-      })
+     const listCollection  = await Cfishkois.find(searchFilter)
         .skip(skip)
         .limit(limit)
         .sort(sortOptions)
@@ -137,57 +132,7 @@ const fishController = {
       res.status(500).json({message : err});
     }
    } ,
-   searchColor : async(req , res ) => {
-      const client = new MongoClient(process.env.DB_URI);
-      const db = client.db("test");
-      const Cfishkois = db.collection("fishkois");
-    try {
-       const color = parseInt(req.query.color) || "";
-        const page = parseInt(req.query.page ) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const sortOrder = req.query.sortOrder || "asc";
-        const sortBy = parseInt(req.query.sortBy) || 0;
-        
-        const skip = (page -1) * limit;
-         const colorValue = [
-           "yellow",
-           "green",
-           "blue",
-           "red",
-           " brown",
-           "black",
-         ];
 
-           const sortByValue = ["elementID", "koiName"];
-           const sortOrderValue = sortOrder === "asc" ? 1 : -1;
-
-           const sortOptions = {
-             [sortByValue[sortBy]]: sortOrderValue,
-           };
-         console.log(colorValue[color]);
-         
-
-         const listCollection = await Cfishkois.find({
-           colors: { $regex: color, $options: "i" },
-         })
-           .skip(skip)
-           .limit(limit)
-           .sort(sortOptions)
-           .toArray();
-
-        console.log(listCollection);
-        
-        return    res.status(200).json({
-             currentPage: page,
-             totalPages: Math.ceil(listCollection.length / limit),
-             totalDocuments: listCollection.length,
-             data: listCollection,
-           });
-      
-    } catch (err) {
-      return res.status(500).json(err)
-    }
-   },
    getKoiByElement  : async(req ,res) => {
        try {
      

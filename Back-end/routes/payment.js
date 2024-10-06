@@ -16,7 +16,7 @@ router.post("/paymentMomo", async (req, res) => {
   var orderId =  requestId;   
   var orderInfo = "pay with MoMo";
   var redirectUrl = "https://momo.vn/return";
-  var ipnUrl ="https://d946-2402-800-63b7-80a2-41d3-c15e-5738-e255.ngrok-free.app/v1/pay/callback";
+  var ipnUrl = "https://2be3-27-64-137-164.ngrok-free.app/v1/pay/callback";
   // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
   var amount = "50000";
   var requestType = "payWithMethod";
@@ -124,7 +124,9 @@ router.post("/callback", async (req ,res) => {
 
       const userUpdateMemberStatus = await users.findByIdAndUpdate(
         extraData,
-         {memberStatus : true},
+         {memberStatus : true, 
+          notification :  `your orders successful  ${orderId}`
+         },
         { new: true, runValidators: true }
       ); 
 
@@ -139,7 +141,6 @@ router.post("/callback", async (req ,res) => {
     }
     
 })
-
 
 
 module.exports = router

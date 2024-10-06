@@ -52,7 +52,13 @@ const userSchema = new mongoose.Schema(
 
     provider :  {
       type : String,
-    }
+    } ,
+    notification : [
+     {
+      type :  String,
+      
+     }
+    ]
 
   },
   {

@@ -12,8 +12,7 @@ router.delete('/deleteKoi/:id' ,middleware.verifyTokenAdminAuth, fishController.
 //v1/fish/updateKoi/:id
 router.put('/updateKoi/:id' ,middleware.verifyTokenAdminAuth ,fishController.update);
 // v1/fish/search/
-router.get('/searchKoiName',fishController.search);
-router.get('/searchKoiColor' , fishController.searchColor);
+router.get('/search',fishController.search);
 // laya ra nhung co ca koi cung ban menh 
 router.get('/getKoiElement'  , fishController.getKoiByElement);
 
