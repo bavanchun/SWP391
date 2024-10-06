@@ -2,10 +2,17 @@ const fishkois = require("../models/fishkoi");
 const paginations  = require("../controller/pagination");
 const { search } = require("../routes/oauth");
 const { MongoClient } = require("mongodb");
+const { pagination } = require("./userController");
+const useController = require("./userController");
 require("dotenv").config();
 
 
 const fishController = {
+  pagination: (collectionName) => {
+    const client = new MongoClient(proccess.env.DB_URI);
+    const db = client.db("test")
+    return db.collection(collectionName);
+  } ,
   getAll: async (req, res) => {
     try {
       const page = parseInt(req.query.page || 1);
@@ -19,7 +26,7 @@ const fishController = {
       );
 
       if (result.currentPage > result.totalPages) {
-        return res.status(404).json("Data not found");
+        return res.status(404).json("Not Found Data");
       }
 
       return res.status(200).json({ result });
@@ -80,11 +87,8 @@ const fishController = {
 
    search : async (req, res) => {
 
-     const client = new MongoClient(process.env.DB_URI);
-     const db = client.db("test");
-     const Cfishkois = db.collection("fishkois");
+     const Cfishkois = useController.pagination("fishkois");
   
-    
     try {
       const searchName = req.query.searchName  || "";
      // const searchColor = req.query.searchColor || "";
@@ -96,7 +100,7 @@ const fishController = {
 
       // tao doi tuong searh filter
       const searchFilter = {};
-
+      // skip dung de  phan trang
       const skip = (page - 1) * limit;
       // xây dựng điều kiệm tìm kiếm
       const sortByValue = ["elementID", "koiName"];
@@ -105,16 +109,19 @@ const fishController = {
       const sortOptions = {
         [sortByValue[sortBy]]: sortOrderValue,
       };
-  
+      // log
+ 
+      
       
       // tim kiem thuoc ve color
       console.log(typeof color);
       // dieu kien 1 neu tim name
       if (searchName)  searchFilter.koiName = { $regex: searchName, $options: "i" };
       // dieu kien 2 tim color 
-      if (searchColor.length > 0)  {
+      if (searchColor.length > 0)  {  
         searchFilter.colors = { $in: searchColor };
       };
+      if (req.query.searchElement) searchFilter.elementID = parseInt(req.query.searchElement);
       
      const listCollection  = await Cfishkois.find(searchFilter)
         .skip(skip)
@@ -123,6 +130,12 @@ const fishController = {
         .toArray();
       console.log(listCollection.length);
       
+      if(listCollection.length == 0) {
+      return  res.status(404).json("Not Found Data");
+      }
+
+
+      //  dem tong collection
       const totalDocuments =  await Cfishkois.countDocuments();
      
       
