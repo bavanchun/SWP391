@@ -121,11 +121,15 @@ const fishController = {
         .limit(limit)
         .sort(sortOptions)
         .toArray();
-
+      console.log(listCollection.length);
+      
+      const totalDocuments =  await Cfishkois.countDocuments();
+     
+      
       res.status(200).json({
         currentPage: page,
-        totalPages: Math.ceil(listCollection.length / limit),
-        totalDocuments: listCollection.length,
+        totalPages: Math.ceil(totalDocuments/ limit),
+        totalDocuments: totalDocuments,
         data: listCollection,
       });
     } catch (err) {

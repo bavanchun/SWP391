@@ -38,14 +38,14 @@ const useController = {
         .sort(sortOptions)
         .skip(skip)
         .limit(limit)
-        .toArray();
-      console.log(user);
-      const [password , ...others] = user;
-      
+        .toArray(); 
+
+        
+      const totalDocuments = await userCollection.countDocuments(); 
       return res.status(200).json({
         currentPage: page,
-        totalPages: Math.ceil(user.length / limit),
-        totalDocuments: user.length,
+        totalPages: Math.ceil(totalDocuments / limit),
+        totalDocuments: totalDocuments,
         data: user,
       });
     } catch (err) {
@@ -270,10 +270,13 @@ const useController = {
         .sort(sortOptions)
         .toArray();
 
+      // dem tong data trong 1 collection 
+       const totalDocuments = await Cuser.countDocuments();
+        
       return res.status(200).json({
         pageCurrent: page,
-        totalPage: Math.ceil(listCollection.length / limit),
-        totalDocuments: listCollection.length,
+        totalPage: Math.ceil(totalDocuments  / limit),
+        totalDocuments: totalDocuments,
         data: listCollection,
       });
     } catch (err) {
