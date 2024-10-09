@@ -235,7 +235,7 @@ const authController = {
     }
   },
 
-
+  
 
 
   sendChangeEmail: async (req, res) => {
