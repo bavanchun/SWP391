@@ -41,6 +41,7 @@ function App() {
     }
   };
 
+
   const getKoiElement  = async () => { 
     try {
     
@@ -132,7 +133,7 @@ function App() {
      );
    }
 
-   const changeAvatar = async() => { 
+   const changeAvatar = async () => { 
       setID("66eb057f5a836eb9ec328712");
 
       const data = { 
@@ -143,8 +144,7 @@ function App() {
         const result = await axios.post(
           `http://localhost:8081/v1/user/update/id=${id}`, data
         );
-         console.log("Update avatar success" + result.data);
-        
+        console.log("Update avatar success" + result.data);
         
       }catch (err) {
         console.log(err);
@@ -195,7 +195,6 @@ function App() {
     }
   }
    
-
    const handleUpload = async (e) => { 
        setFile(e.target.files);
       console.log(file);
@@ -216,10 +215,8 @@ function App() {
      uploadMultipleImage(formData);
      
    }
- 
-   
- 
-  
+
+
   return (
     <>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_ClIENT_ID}>
