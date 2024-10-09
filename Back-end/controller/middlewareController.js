@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken") 
+const multer = require("multer"); 
+const packageMember  = require("../models/packageMember");
 
 
 const middlewareController =  {
@@ -31,10 +33,35 @@ const middlewareController =  {
          if (req.user.id == req.params.id || req.user.admin) {
             next();
          }else{ 
-            return res.status(403).json("You not allowed to DELETE ")
+            return res.status(403).json("You Are Not Authenticated ")
          }
         }) 
-    },
+
+    },verifyTokenMember : (req  ,res , next) => {
+      middlewareController.verifyToken(req ,res , async () => {
+         console.log(req.user.id);
+         
+        if (req.user.memberStatus) {
+          const packageMem = await packageMember.find({accountID : req.user.id}).populate('accountID');
+          console.log(packageMem);
+          
+          if (packageMem) { 
+          const currentDate = new Date();
+          if (new Date(packageMember.expires) < currentDate) {
+            return  res.status(403).json("Membership expired , Please register again")
+          } 
+        }else {
+          return res.status(404).json("Not found memberShip");
+        }
+
+        next();
+   
+        }else{
+          return  res.status(403).json("You need join Member ")
+        }
+      })
+    }
+
 
 }
 
