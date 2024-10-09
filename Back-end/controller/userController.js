@@ -1,24 +1,19 @@
 const User = require("../models/user");
 const packageMember = require("../models/packageMember");
 const bcrypt = require("bcrypt");
-const { MongoClient } = require("mongodb");
-const pagination = require("./pagination");
 const cloudinary = require("../config/cloudinary");
 const upload = require("../middleware/multer");
 const { UploadStream } = require("cloudinary");
 const fs = require("fs");
 
 
+
 require("dotenv").config();
 
 const useController = {
-  pagination: (collectionName) => {
-    const client = new MongoClient(process.env.DB_URI);
-    const db = client.db("test");
-    return db.collection(collectionName);
-  },
+  
   getAllUsr: async (req, res) => {
-    const userCollection = useController.pagination("users");
+    
 
     try {
       const page = parseInt(req.query.page) || 1; 
@@ -33,15 +28,15 @@ const useController = {
       };
 
       const skip = (page - 1) * limit;
-      const user = await userCollection
+      const user = await User
         .find()
         .sort(sortOptions)
         .skip(skip)
         .limit(limit)
-        .toArray(); 
+      
 
         
-      const totalDocuments = await userCollection.countDocuments(); 
+      const totalDocuments = await User.countDocuments(); 
       return res.status(200).json({
         currentPage: page,
         totalPages: Math.ceil(totalDocuments / limit),
@@ -114,7 +109,7 @@ const useController = {
       const updateData = req.body;
 
       console.log(idUser);
-      
+        
       // hash Password
       if (updateData.password) {
         const salt = await bcrypt.genSalt(10);
@@ -211,7 +206,7 @@ const useController = {
     }
   },
   search: async (req, res) => {
-    const Cuser = useController.pagination("users");
+    
     try {
       // const searchName = req.query.sName|| "";
       // const searchUserName = req.query.sUserName ||  "";
@@ -264,14 +259,14 @@ const useController = {
       }
       console.log(query);
 
-      const listCollection = await Cuser.find(query)
+      const listCollection = await User.find(query)
         .skip(skip)
         .limit(limit)
         .sort(sortOptions)
-        .toArray();
+        
 
       // dem tong data trong 1 collection 
-       const totalDocuments = await Cuser.countDocuments();
+       const totalDocuments = await User.countDocuments();
         
       return res.status(200).json({
         pageCurrent: page,

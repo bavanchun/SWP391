@@ -1,9 +1,7 @@
 const fishkois = require("../models/fishkoi"); 
-const paginations  = require("../controller/pagination");
+
 const { search } = require("../routes/oauth");
 const { MongoClient } = require("mongodb");
-const { pagination } = require("./userController");
-const useController = require("./userController");
 require("dotenv").config();
 
 
@@ -17,19 +15,29 @@ const fishController = {
     try {
       const page = parseInt(req.query.page || 1);
       const limit = parseInt(req.query.limit || 10);
+      const skip = (page -1) * limit;
       console.log({ page, limit });
 
-      const result = await paginations.paginationGetAll(
-        page,
-        limit,
-        "fishkois"
-      );
+      // const result = await paginations.paginationGetAll(
+      //   page,
+      //   limit,
+      //   "fishkois"
+      // );
+       const result = await fishkois.find()
+      .skip(skip)
+      .limit(limit)
+      const totalDocuments = await fishkois.countDocuments();
 
-      if (result.currentPage > result.totalPages) {
-        return res.status(404).json("Not Found Data");
-      }
-
-      return res.status(200).json({ result });
+      // if (result.currentPage > result.totalPages) {
+      //   return res.status(404).json("Not Found Data");
+      // }
+  
+      return res.status(200).json({
+        currentPage: page,
+        totalPages: Math.ceil(totalDocuments / limit),
+        totalDocuments: totalDocuments,
+        data: result,
+      });
     } catch (err) {
       return res.status(500).json(err);
     }
@@ -87,7 +95,7 @@ const fishController = {
 
    search : async (req, res) => {
 
-     const Cfishkois = useController.pagination("fishkois");
+     
   
     try {
       const searchName = req.query.searchName  || "";
@@ -111,10 +119,6 @@ const fishController = {
       };
       // log
  
-      
-      
-      // tim kiem thuoc ve color
-      console.log(typeof color);
       // dieu kien 1 neu tim name
       if (searchName)  searchFilter.koiName = { $regex: searchName, $options: "i" };
       // dieu kien 2 tim color 
@@ -123,11 +127,11 @@ const fishController = {
       };
       if (req.query.searchElement) searchFilter.elementID = parseInt(req.query.searchElement);
       
-     const listCollection  = await Cfishkois.find(searchFilter)
+     const listCollection  = await fishkois.find(searchFilter)
         .skip(skip)
         .limit(limit)
         .sort(sortOptions)
-        .toArray();
+      
       console.log(listCollection.length);
       
       if(listCollection.length == 0) {
@@ -136,7 +140,7 @@ const fishController = {
 
 
       //  dem tong collection
-      const totalDocuments =  await Cfishkois.countDocuments();
+      const totalDocuments =  await fishkois.countDocuments();
      
       
       res.status(200).json({
