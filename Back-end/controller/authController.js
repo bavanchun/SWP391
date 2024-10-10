@@ -44,7 +44,7 @@ const authController = {
         avatar: "",
         birthDate: req.body.birthDate,
         gender: gender,
-        phoneNumber: req.body.phonenumber,
+        phoneNumber: req.body.phoneNumber,
         name: req.body.fullName,
       });
 

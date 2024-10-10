@@ -341,6 +341,31 @@ const useController = {
         message: "An error occurred while uploading the images",
       });
     }
+  },
+  NotificationStatus : async ( req , res) => {
+    try { 
+      console.log(req.body.id, req.body.notificationID);
+      
+      const updateUser = await User.findOneAndUpdate(
+        {_id : req.body.id , "notification._id" : req.body.notificationID},
+        {
+          $set : {
+            "notification.$.status" : false
+          } , 
+           
+        }, 
+        { new : true}
+      )
+      if (!updateUser) {
+        return res.status(404).json("Notification or user not found")
+      }
+       return res.status(200).json({
+          Error : false , 
+          data :  updateUser
+       })
+    } catch (err) {
+      return res.status(500).json(err)
+    }
   }
 };
 

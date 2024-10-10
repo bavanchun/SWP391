@@ -54,10 +54,16 @@ const userSchema = new mongoose.Schema(
       type : String,
     } ,
     notification : [
-     {
-      type :  String,
-      
-     }
+     {  
+      content :  {
+        type : String,
+      } ,
+      status : {
+        type : Boolean,
+      },
+       
+     },
+    {timestamps :true}
     ]
 
   },

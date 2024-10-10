@@ -16,7 +16,7 @@ router.post("/paymentMomo", async (req, res) => {
   var orderId =  requestId;   
   var orderInfo = "pay with MoMo";
   var redirectUrl = "https://momo.vn/return";
-  var ipnUrl = "https://2be3-27-64-137-164.ngrok-free.app/v1/pay/callback";
+  var ipnUrl ="https://ab05-2402-800-6318-4a0-f443-befd-3db1-a622.ngrok-free.app/v1/pay/callback";
   // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
   var amount = "50000";
   var requestType = "payWithMethod";
@@ -121,16 +121,18 @@ router.post("/callback", async (req ,res) => {
         status : true,
       }); 
       await newOrder.save();
-
+      const newnotification = {
+        content : "register member successful",
+        status : true
+      }
       const userUpdateMemberStatus = await users.findByIdAndUpdate(
         extraData,
          {memberStatus : true, 
-          notification :  `your orders successful  ${orderId}`
+          $push : {notification : newnotification}
          },
         { new: true, runValidators: true }
       ); 
-
-      console.log(userUpdateMemberStatus);
+     
       
     return  res.status(200).json({user : userUpdateMemberStatus , message : "register member Succesful"})
     } 

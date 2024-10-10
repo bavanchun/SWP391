@@ -38,4 +38,5 @@ router.get("/search",middlewareController.verifyTokenAdminAuth, useController.se
 router.post("/uploadImage", upload.single("avatar"), useController.uploadImage);
 
 router.post("/uploadImages", uploads.array("post"), useController.uploadImages);
+router.post("/notificationStatus" ,  useController.NotificationStatus)
 module.exports = router;
