@@ -1,47 +1,109 @@
-import { useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { useLocation } from "react-router-dom";
-// lay pathName
+import { useLocation, useNavigate } from "react-router-dom";
+import { notification } from "antd";
+import axios from "axios";
 
 export function ChangeEmail() {
-   const [email, setEmail] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const pathName = location.pathname;
+
+  const [email, setEmail] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const pathName = useLocation().pathname;
+
+  const queryParams = new URLSearchParams(location.search);
+  const token = queryParams.get("token");
+  const tokenuser = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (pathName === "/changeEmail" && !token) {
+      notification.error({
+        message: "Invalid Request",
+        description:
+          "No token provided. Please initiate the email change process again.",
+      });
+      navigate("/profile"); // Redirect to profile or appropriate page
+    }
+  }, [pathName, token, navigate]);
+
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
   };
 
   const handleCaptchaChange = (value) => {
-     console.log(value);
-     
-    if (value) {
-      setCaptchaVerified(true);
-    } else {
-      setCaptchaVerified(false);
-    }
+    console.log("CAPTCHA value:", value);
+    setCaptchaVerified(!!value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (captchaVerified && email) {
       setSubmitted(true);
-      // Here you can make the API call to update the email
-      console.log('Email submitted:', email);
-      
+      try {
+        let response;
+
+        if (pathName === "/changeEmail") {
+          if (!token) {
+            notification.error({
+              message: "Invalid Request",
+              description:
+                "No token provided. Please initiate the email change process again.",
+            });
+            navigate("/profile");
+            return; 
+          }
+          // Call the API to confirm the email change
+          response = await axios.post(
+            "http://localhost:8081/v1/user/confirmEmail",
+            { token, email }
+          );
+          notification.success({
+            message: "Success",
+            description:
+              "Your email has been updated successfully. Redirecting to profile...",
+          });
+        } else {
+          // Call the API to send an email
+          response = await axios.post(
+            "http://localhost:8081/v1/user/send-change-email",
+            { email },
+            {
+              headers: {
+                Authorization: `Bearer ${tokenuser}`, // Send the token in the header
+              },
+            }
+          );
+          notification.success({
+            message: "Success",
+            description:
+              "An email has been sent successfully. Please check your inbox.",
+          });
+        }
+
+        setTimeout(() => navigate("/profile"), 3000);
+      } catch (err) {
+        console.error(err); // Log error
+        notification.error({
+          message: "Error",
+          description:
+            err.response?.data?.message ||
+            "Something went wrong. Please try again.",
+        });
+        setSubmitted(false);
+      }
+    } else {
+      notification.error({
+        message: "Verification Failed",
+        description: "Please complete the CAPTCHA and enter a valid email.",
+      });
     }
   };
-  console.log(useLocation().pathname);
-  
+
   return (
-    <div
-      className={`${
-        pathName === "/changeEmail" && "flex justify-center items-center h-full translate-y-1/2"
-      }`}
-    >
-      <div
-        className={`max-w-screen-sm mx-auto bg-white shadow-md rounded-lg p-6 `}
-      >
+    <div className={`flex justify-center items-center h-full translate-y-1/2`}>
+      <div className="max-w-screen-sm mx-auto bg-white shadow-md rounded-lg p-6">
         <h1 className="text-2xl font-semibold mb-4">Change Email</h1>
 
         <form onSubmit={handleSubmit}>
@@ -55,11 +117,12 @@ export function ChangeEmail() {
             <input
               type="email"
               id="email"
+              name="email"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               placeholder={
                 pathName === "/changeEmail"
                   ? "Enter your new email"
-                  : "enter your current email"
+                  : "Enter your email to send verification"
               }
               value={email}
               onChange={handleEmailChange}
@@ -70,7 +133,7 @@ export function ChangeEmail() {
           {/* reCAPTCHA */}
           <div className="mb-4">
             <ReCAPTCHA
-              sitekey="6LfbSFoqAAAAAFIsgVegPsw4cmE-bV7saoQcIj1E" // Replace this with your site key from Google
+              sitekey="6LfbSFoqAAAAAFIsgVegPsw4cmE-bV7saoQcIj1E" 
               onChange={handleCaptchaChange}
             />
           </div>
@@ -90,15 +153,15 @@ export function ChangeEmail() {
 
           {submitted && (
             <div className="mt-4 text-green-500 font-semibold">
-              {pathName === "/changeEmail" ? (
-                <p> Your email has been update </p>
-              ) : (
-                <p> Your email has been submitted successfully! </p>
-              )}
+              <p>
+                {pathName === "/changeEmail"
+                  ? "Your email has been updated!"
+                  : "An email has been sent!"}
+              </p>
             </div>
           )}
         </form>
       </div>
     </div>
   );
-};
+}

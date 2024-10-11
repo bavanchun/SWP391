@@ -4,19 +4,19 @@ const bcrypt = require("bcrypt");
 const cloudinary = require("../config/cloudinary");
 const upload = require("../middleware/multer");
 const { UploadStream } = require("cloudinary");
+
+const jwt = require("jsonwebtoken");
+
+//npm install nodemailer
+const nodemailer = require("nodemailer");
 const fs = require("fs");
-
-
 
 require("dotenv").config();
 
 const useController = {
-  
   getAllUsr: async (req, res) => {
-    
-
     try {
-      const page = parseInt(req.query.page) || 1; 
+      const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const sortOrder = req.query.sort || "asc";
       const sortBy = parseInt(req.query.sortBy) || 0;
@@ -28,15 +28,9 @@ const useController = {
       };
 
       const skip = (page - 1) * limit;
-      const user = await User
-        .find()
-        .sort(sortOptions)
-        .skip(skip)
-        .limit(limit)
-      
+      const user = await User.find().sort(sortOptions).skip(skip).limit(limit);
 
-        
-      const totalDocuments = await User.countDocuments(); 
+      const totalDocuments = await User.countDocuments();
       return res.status(200).json({
         currentPage: page,
         totalPages: Math.ceil(totalDocuments / limit),
@@ -56,9 +50,8 @@ const useController = {
       res.status(500).json(err);
     }
   },
-  createUser : async (req, res) => {
+  createUser: async (req, res) => {
     try {
-    
       const {
         userName,
         name,
@@ -72,44 +65,42 @@ const useController = {
         birthDate,
       } = req.body;
 
-      const data =  {
+      const data = {
         userName,
-        name , 
-        email, 
+        name,
+        email,
         password,
         admin,
-        phoneNumber, 
-        avatar, 
-        memberStatus, 
-        gender, 
-        birthDate, 
-
-      }
+        phoneNumber,
+        avatar,
+        memberStatus,
+        gender,
+        birthDate,
+      };
       // hash  password
       if (password) {
         const salt = await bcrypt.genSalt(10);
-        const hashPassword = await bcrypt.hash(data.password , salt);
+        const hashPassword = await bcrypt.hash(data.password, salt);
         data.password = hashPassword;
       }
-       
-    
-    const nUser =  new User(data); 
-    await nUser.save();
-    return res.status(200).json("successfull create new User");
-    }catch (err) {
+
+      const nUser = new User(data);
+      await nUser.save();
+      return res.status(200).json("successfull create new User");
+    } catch (err) {
       if (err.code === 11000) {
         return res.status(500).json(err.errmsg);
       }
-      return res.status(500).json(err)
+      return res.status(500).json(err);
     }
-  }, 
+  },
   updateUser: async (req, res) => {
     try {
-      const idUser = req.params.id; 
+      const idUser = req.params.id;
       const updateData = req.body;
 
       console.log(idUser);
-        
+
       // hash Password
       if (updateData.password) {
         const salt = await bcrypt.genSalt(10);
@@ -128,9 +119,8 @@ const useController = {
       // neu muon update sai save()
       // await updateUsr.save();
       console.log(updateUsr);
-      
-      res.status(202).json(updateUsr);
 
+      res.status(202).json(updateUsr);
     } catch (err) {
       res.status(500).json(err);
     }
@@ -154,13 +144,13 @@ const useController = {
       const id = req.body.id;
 
       console.log(id);
-      
+
       // check account id da dk goi member hay chua
       const isExist = await packageMember
         .findOne({ accountID: req.body.id })
         .populate("accountID");
       console.log(isExist);
-      
+
       if (isExist) {
         return res.status(403).json({ error: "account was subcribe member" });
       }
@@ -198,15 +188,16 @@ const useController = {
 
       // save  to database
       const newpackageMembers = await packageMem.save();
-      
+
       // res to json
-      return res.status(200).json({newpackageMembers , message : "need proccess payment"});
+      return res
+        .status(200)
+        .json({ newpackageMembers, message: "need proccess payment" });
     } catch (err) {
       return res.status(500).json(err);
     }
   },
   search: async (req, res) => {
-    
     try {
       // const searchName = req.query.sName|| "";
       // const searchUserName = req.query.sUserName ||  "";
@@ -218,7 +209,7 @@ const useController = {
       // request query
       const { searchName, searchUserName } = req.query;
 
-      const sortByValue = ["name", "createdAt" ];
+      const sortByValue = ["name", "createdAt"];
 
       let sortOrderValue;
       // option sort
@@ -262,15 +253,14 @@ const useController = {
       const listCollection = await User.find(query)
         .skip(skip)
         .limit(limit)
-        .sort(sortOptions)
-        
+        .sort(sortOptions);
 
-      // dem tong data trong 1 collection 
-       const totalDocuments = await User.countDocuments();
-        
+      // dem tong data trong 1 collection
+      const totalDocuments = await User.countDocuments();
+
       return res.status(200).json({
         pageCurrent: page,
-        totalPage: Math.ceil(totalDocuments  / limit),
+        totalPage: Math.ceil(totalDocuments / limit),
         totalDocuments: totalDocuments,
         data: listCollection,
       });
@@ -296,52 +286,211 @@ const useController = {
       }
     );
   },
-  uploadImages : async (req ,res ) => {
-    try { 
-       console.log(req.files);
+  uploadImages: async (req, res) => {
+    try {
+      console.log(req.files);
       // kiem tra xem các file có được upload
-       if (!req.files || req.files.length === 0) {
-         return res.status(400).json({
-           success: false,
-           message: "No files uploaded",
-         });
-       }
-    //
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "No files uploaded",
+        });
+      }
+      //
 
       const uploadPromises = req.files.map((file) => {
-        return cloudinary.uploader.upload(file.path, {  
+        return cloudinary.uploader.upload(file.path, {
           folder: "post",
         });
       });
 
       const results = await Promise.all(uploadPromises);
-      console.log(" RESULT AFTER UPLOAD  CLOUDINARY  : "+ results);
-      
+      console.log(" RESULT AFTER UPLOAD  CLOUDINARY  : " + results);
+
       // lam trong thu muc upload sau khi  được upload lên cloud
-         req.files.forEach((file) => {
-           fs.unlink(file.path, (err) => {
-             if (err) {
-               console.error("Error deleting file:", err);
-             }
-           });
-         });
-   
-       const urls = results.map((result) => result.secure_url);
-      
-      return res.status(200).json(
-        {
-          success : true, 
-          data : urls
-        }
-      )
-     
-    }catch (err) {
+      req.files.forEach((file) => {
+        fs.unlink(file.path, (err) => {
+          if (err) {
+            console.error("Error deleting file:", err);
+          }
+        });
+      });
+
+      const urls = results.map((result) => result.secure_url);
+
+      return res.status(200).json({
+        success: true,
+        data: urls,
+      });
+    } catch (err) {
       return res.status(500).json({
         success: false,
         message: "An error occurred while uploading the images",
       });
     }
-  }
+  },
+
+  updatePassword: async (req, res) => {
+    try {
+      const userId = req.user.id;
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const ValidPassword = await bcrypt.compare(
+        req.body.currentPassword,
+        user.password
+      );
+      if (!ValidPassword) {
+        return res.status(401).json("Wrong password!");
+      }
+
+      if (req.body.newPassword.length < 6) {
+        return res
+          .status(400)
+          .json({ message: "New password must be at least 6 characters long" });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const newPassword = await bcrypt.hash(req.body.newPassword, salt);
+
+      user.password = newPassword;
+      await user.save();
+      return res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+      return res.status(500).json(error);
+    }
+  },
+
+  sendChangeEmail: async (req, res) => {
+    try {
+      const email = req.body.email;
+      const userId = req.user.id;
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.email !== email) {
+        return res.status(400).json({ message: "Your email is incorrect" });
+      }
+
+      // Tạo JWT Token
+      const changeEmailToken = jwt.sign(
+        { id: userId },
+        process.env.JWT_CHANGE_EMAIL_KEY,
+        { expiresIn: "15m" }
+      );
+
+      // Cấu hình Nodemailer
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      // Gửi email xác nhận
+      const mailOptions = {
+        to: email,
+        subject: "Email Change Confirmation",
+        html: `
+          <p>You have requested to change your email address. Click the link below to confirm:</p>
+          <p><a href="http://localhost:${process.env.PORT}/v1/user/send-change-email/${changeEmailToken}">Email Change Confirmation</a></p>
+          <p>This link will expire after 15 minutes. If you do not request a change, please ignore this email.</p>
+        `,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(500).json(error);
+        }
+        res.status(200).json("Email change confirmation sent");
+      });
+    } catch (error) {
+      return res.status(500).json(error);
+    }
+  },
+
+  confirmChangeEmail: async (req, res) => {
+    try {
+      const changeEmailToken = req.params.token || req.body.token;
+
+      if (!changeEmailToken) {
+        return res.status(400).json("Token not provided");
+      }
+
+      // Xác thực token
+      jwt.verify(
+        changeEmailToken,
+        process.env.JWT_CHANGE_EMAIL_KEY,
+        async (err, decoded) => {
+          if (err) {
+            console.error("Token verification error:", err);
+            return res.status(400).json("Invalid or expired token");
+          }
+
+          const id = decoded.id;
+          const newEmail = req.body.email;
+
+          // Kiểm tra lại xem email mới có bị sử dụng chưa
+          const existingEmail = await User.findOne({ email: newEmail });
+          if (existingEmail) {
+            return res.status(400).json("This email has already been used");
+          }
+
+          // Tìm người dùng theo ID
+          const user = await User.findById(id);
+          if (!user) {
+            return res.status(404).json("User not found");
+          }
+
+          const oldEmail = user.email; // Lưu email cũ để thông báo sau
+
+          // Cập nhật email mới
+          user.email = newEmail;
+          await user.save();
+
+          const transporter = nodemailer.createTransport({
+            service: "Gmail",
+            auth: {
+              user: process.env.EMAIL_USER,
+              pass: process.env.EMAIL_PASS,
+            },
+          });
+
+          const mailOptionsOldEmail = {
+            to: oldEmail,
+            subject: "Email Change Notification",
+            html: `
+              <p>Your user email address have been changed from <strong>${oldEmail}</strong> to <strong>${newEmail}</strong>.</p>
+              <p>If you do not make this change, please contact support immediately.</p>
+            `,
+          };
+
+          
+          transporter.sendMail(mailOptionsOldEmail, (error, info) => {
+            if (error) {
+              console.error(
+                "Error sending notification email to old email:",
+                error
+              );
+              // Không trả lỗi cho người dùng vì thay đổi email đã thành công
+            }
+          });
+
+          res.status(200).json("Email has been changed successfully");
+        }
+      );
+    } catch (error) {
+      return res.status(500).json(error);
+    }
+  },
 };
 
 module.exports = useController;
