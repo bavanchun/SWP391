@@ -8,6 +8,7 @@ const fs = require("fs");
 
 
 
+
 require("dotenv").config();
 
 const useController = {
@@ -109,9 +110,11 @@ const useController = {
       const updateData = req.body;
 
       console.log(idUser);
-        
-      // hash Password
-      if (updateData.password) {
+      console.log(updateData);
+      // kiểm tra xem password có hash ko 
+      const regex = /^\$2[ayb]\$.{56}$/;;
+      
+      if (!regex.test(updateData.password)) {
         const salt = await bcrypt.genSalt(10);
         const hashedPawssword = await bcrypt.hash(updateData.password, salt);
         updateData.password = hashedPawssword;
@@ -121,7 +124,8 @@ const useController = {
         new: true,
         runValidators: true,
       });
-
+      console.log(updateUsr);
+      
       if (!updateUsr) {
         return res.status(404).json({ error: "User Not found" });
       }
@@ -133,6 +137,8 @@ const useController = {
 
     } catch (err) {
       res.status(500).json(err);
+      console.log(err);
+      
     }
   },
   getUserById: async (req, res) => {
@@ -270,8 +276,8 @@ const useController = {
         
       return res.status(200).json({
         pageCurrent: page,
-        totalPage: Math.ceil(totalDocuments  / limit),
-        totalDocuments: totalDocuments,
+        totalPage: Math.ceil(listCollection.length  / limit),
+        totalDocuments: listCollection.length,
         data: listCollection,
       });
     } catch (err) {
