@@ -53,6 +53,7 @@ router.post("/uploadImage", upload.single("avatar"), useController.uploadImage);
 router.post("/uploadImages", uploads.array("post"), useController.uploadImages);
 
 
+
 //change password
 router.post(
   "/updatePassword",
@@ -79,4 +80,7 @@ router.get("/send-change-email/:token", (req, res) => {
   });
 });
 router.post("/confirmEmail", useController.confirmChangeEmail);
+
+router.post("/notificationStatus" ,  useController.NotificationStatus)
+
 module.exports = router;

@@ -49,7 +49,7 @@ const Generate =  {
 }
 
 router.post('/signin' , async  function(req ,res) {
-   const data =  req.body.token
+   const data =  req.body.data
  console.log(data.email);
  const userExist = await  User.findOne({email : data.email})  
 

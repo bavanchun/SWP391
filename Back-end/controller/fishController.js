@@ -141,12 +141,13 @@ const fishController = {
 
       //  dem tong collection
       const totalDocuments =  await fishkois.countDocuments();
-     
+      
+      
       
       res.status(200).json({
         currentPage: page,
-        totalPages: Math.ceil(totalDocuments/ limit),
-        totalDocuments: totalDocuments,
+        totalPages: Math.ceil(listCollection.length/ limit),
+        totalDocuments: listCollection.length,
         data: listCollection,
       });
     } catch (err) {

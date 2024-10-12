@@ -11,6 +11,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 
+
 require("dotenv").config();
 
 const useController = {
@@ -101,8 +102,12 @@ const useController = {
 
       console.log(idUser);
 
-      // hash Password
-      if (updateData.password) {
+      console.log(updateData);
+      // kiểm tra xem password có hash ko 
+      const regex = /^\$2[ayb]\$.{56}$/;;
+      
+      if (!regex.test(updateData.password)) {
+
         const salt = await bcrypt.genSalt(10);
         const hashedPawssword = await bcrypt.hash(updateData.password, salt);
         updateData.password = hashedPawssword;
@@ -112,7 +117,8 @@ const useController = {
         new: true,
         runValidators: true,
       });
-
+      console.log(updateUsr);
+      
       if (!updateUsr) {
         return res.status(404).json({ error: "User Not found" });
       }
@@ -123,6 +129,8 @@ const useController = {
       res.status(202).json(updateUsr);
     } catch (err) {
       res.status(500).json(err);
+      console.log(err);
+      
     }
   },
   getUserById: async (req, res) => {
@@ -260,8 +268,13 @@ const useController = {
 
       return res.status(200).json({
         pageCurrent: page,
-        totalPage: Math.ceil(totalDocuments / limit),
-        totalDocuments: totalDocuments,
+// <<<<<<< HEAD
+//         totalPage: Math.ceil(totalDocuments / limit),
+//         totalDocuments: totalDocuments,
+// =======
+        totalPage: Math.ceil(listCollection.length  / limit),
+        totalDocuments: listCollection.length,
+
         data: listCollection,
       });
     } catch (err) {
@@ -329,6 +342,7 @@ const useController = {
       });
     }
   },
+
 
   updatePassword: async (req, res) => {
     try {
@@ -491,6 +505,32 @@ const useController = {
       return res.status(500).json(error);
     }
   },
+
+  NotificationStatus : async ( req , res) => {
+    try { 
+      console.log(req.body.id, req.body.notificationID);
+      
+      const updateUser = await User.findOneAndUpdate(
+        {_id : req.body.id , "notification._id" : req.body.notificationID},
+        {
+          $set : {
+            "notification.$.status" : false
+          } , 
+           
+        }, 
+        { new : true}
+      )
+      if (!updateUser) {
+        return res.status(404).json("Notification or user not found")
+      }
+       return res.status(200).json({
+          Error : false , 
+          data :  updateUser
+       })
+    } catch (err) {
+      return res.status(500).json(err)
+    }
+  }
 };
 
 module.exports = useController;
