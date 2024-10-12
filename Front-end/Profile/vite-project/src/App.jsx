@@ -14,21 +14,21 @@ function App() {
     {
       path: "/profile",
       element: <ProfileUser />,
-      children: [
-        {
-          path: "/profile/notification",
-          element: <Notifications />,
-        },
-        {
-          path: "/profile/editProfile",
-          element: <EditProfile />,
-        },
+      // children: [
+      //   {
+      //     path: "/profile/notification",
+      //     element: <Notifications />,
+      //   },
+      //   {
+      //     path: "/profile/editProfile",
+      //     element: <EditProfile />,
+      //   },
 
-        {
-          path: "/profile/changePassword",
-          element: <ChangePassword />,
-        },
-      ],
+      //   {
+      //     path: "/profile/changePassword",
+      //     element: <ChangePassword />,
+      //   },
+      // ],
     },
     {
       path: "/changeEmail",
