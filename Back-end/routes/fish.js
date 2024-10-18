@@ -14,6 +14,7 @@ router.put('/updateKoi/:id' ,middleware.verifyTokenAdminAuth ,fishController.upd
 // v1/fish/search/
 router.get('/search',fishController.search);
 // laya ra nhung co ca koi cung ban menh 
-router.get('/getKoiElement'  , fishController.getKoiByElement);
+// v1/fish/getKoiElement
+router.get('/getKoiElement/:id'  , fishController.getKoiByElement);
 
 module.exports = router

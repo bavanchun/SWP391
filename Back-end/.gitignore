@@ -1,8 +1,6 @@
 .env
-<<<<<<< HEAD
 
 /node_modules
 node_modules
-=======
+
 node_modules/
->>>>>>> Phat-Backend

@@ -15,10 +15,10 @@ router.post("/paymentMomo", async (req, res) => {
   var requestId = partnerCode + new Date().getTime(); ;
   var orderId =  requestId;   
   var orderInfo = "pay with MoMo";
-  var redirectUrl = "https://momo.vn/return";
-  var ipnUrl ="https://ab05-2402-800-6318-4a0-f443-befd-3db1-a622.ngrok-free.app/v1/pay/callback";
+  var redirectUrl = "http://localhost:5173/memberPackage/thankyou";
+  var ipnUrl ="https://d83b-2402-800-6319-e70-cf1-c465-e7f3-3c59.ngrok-free.app/v1/pay/callback";
   // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
-  var amount = "50000";
+  var amount = amount_1;
   var requestType = "payWithMethod";
   var extraData = _id; //pass empty value if your merchant does not have stores
 
@@ -79,8 +79,7 @@ router.post("/paymentMomo", async (req, res) => {
 
 
  try  {
-     const result = await axios.post(
-       "https://test-payment.momo.vn/v2/gateway/api/create", // URL to MoMo API
+     const result = await axios.post("https://test-payment.momo.vn/v2/gateway/api/create", // URL to MoMo API
        requestBody, // Request body
        {
          headers: {
@@ -111,11 +110,14 @@ router.post("/callback", async (req ,res) => {
         extraData,
       } = req.body;
      console.log(extraData ,);
+    console.log("type Of amount "+typeof amount);
+    console.log(amount);
+    
     if (resultCode === 0) { 
       const newOrder = new orders({
         accountID : extraData,
         orderId : orderId ,  
-        amount : parseInt(amount),
+        amount : amount,
         message :  message,
         resultCode : parseInt(resultCode) , 
         status : true,
@@ -132,11 +134,22 @@ router.post("/callback", async (req ,res) => {
          },
         { new: true, runValidators: true }
       ); 
+
+      console.log(userUpdateMemberStatus);
+      
      
       
     return  res.status(200).json({user : userUpdateMemberStatus , message : "register member Succesful"})
     } 
-     return res.status(403).json({message : message});
+     const result = await packageMember.deleteOne({accountID : extraData});
+    
+      if (result.deletedCount === 1) {
+        console.log("Document successfully deleted");
+      } else {
+        console.log("No document found with that accountID");
+      }
+      
+     return res.status(403).json({message : message , result : "clear package "});
 
     } catch (err) {
         return res.status(500).json(err)

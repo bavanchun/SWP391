@@ -10,7 +10,7 @@ const orderSchema =  mongoose.Schema({
         type : String,
         unique : true,
     }, 
-    ammout : {
+    amount : {
         type : Number,
     }, 
     message :{

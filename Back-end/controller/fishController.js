@@ -1,3 +1,4 @@
+
 const fishkois = require("../models/fishkoi"); 
 
 const { search } = require("../routes/oauth");
@@ -158,25 +159,28 @@ const fishController = {
    getKoiByElement  : async(req ,res) => {
        try {
      
-         console.log("query " + req.query.elementID);
+         console.log("query " + req.params.id);
+         console.log("query  "  + typeof req.params.id);
          //get bang body
          // const fishkoi = await fishkois.find({elementID : parseInt(data.elementID) });
 
          //get bang query
-         const fishkoi = await fishkois.find({
-           elementID: parseInt(req.query.elementID),
-         });
+         const fishkoi = await fishkois.find  ({  
+           elementID:  req.params.id})
+         
+         
          console.log(typeof fishkoi);
          console.log(fishkoi.length);
 
          if (fishkoi.length === 0) {
            return res.status(403).json("data is not found");
          }
-         return res.status(200).json({ fishkois: fishkoi });
+         return res.status(200).json(fishkoi);
        } catch (err) {
-         return res.status(500).json({ message: err });
+         return res.status(500).json(err);
        }
-   }
+      
+   },
 };
 
 module.exports = fishController

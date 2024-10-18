@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const elements = require("../models/element")
 const packageMember = require("../models/packageMember");
 const bcrypt = require("bcrypt");
 const cloudinary = require("../config/cloudinary");
@@ -10,7 +11,8 @@ const jwt = require("jsonwebtoken");
 //npm install nodemailer
 const nodemailer = require("nodemailer");
 const fs = require("fs");
-
+const { log, error } = require("console");
+const element = require("../models/element");
 
 require("dotenv").config();
 
@@ -103,11 +105,10 @@ const useController = {
       console.log(idUser);
 
       console.log(updateData);
-      // kiểm tra xem password có hash ko 
-      const regex = /^\$2[ayb]\$.{56}$/;;
-      
-      if (!regex.test(updateData.password)) {
+      // kiểm tra xem password có hash ko
+      const regex = /^\$2[ayb]\$.{56}$/;
 
+      if (!regex.test(updateData.password)) {
         const salt = await bcrypt.genSalt(10);
         const hashedPawssword = await bcrypt.hash(updateData.password, salt);
         updateData.password = hashedPawssword;
@@ -118,7 +119,7 @@ const useController = {
         runValidators: true,
       });
       console.log(updateUsr);
-      
+
       if (!updateUsr) {
         return res.status(404).json({ error: "User Not found" });
       }
@@ -130,7 +131,6 @@ const useController = {
     } catch (err) {
       res.status(500).json(err);
       console.log(err);
-      
     }
   },
   getUserById: async (req, res) => {
@@ -152,6 +152,7 @@ const useController = {
       const id = req.body.id;
 
       console.log(id);
+      console.log(packageType);
 
       // check account id da dk goi member hay chua
       const isExist = await packageMember
@@ -160,21 +161,31 @@ const useController = {
       console.log(isExist);
 
       if (isExist) {
-        return res.status(403).json({ error: "account was subcribe member" });
+        let isExistMemberStatus = await User.findById(req.body.id);
+        if (isExistMemberStatus.memberStatus) {
+          return res
+            .status(403)
+            .json({ error: "account was subcribe member " });
+        }
+        return res.status(403).json({
+          error:
+            "account was create member package ,Press Process to payment again",
+          errorCode: 1,
+        });
       }
 
       let day;
       let Name = " ";
       switch (packageType) {
-        case "0":
+        case "Basic":
           day = 30;
           Name = "Basic";
           break;
-        case "1":
+        case "Advanced":
           day = 60;
-          Name = "advanced";
+          Name = "Advanced";
           break;
-        case "2":
+        case "Plus":
           day = 90;
           Name = "Plus";
           break;
@@ -203,6 +214,14 @@ const useController = {
         .json({ newpackageMembers, message: "need proccess payment" });
     } catch (err) {
       return res.status(500).json(err);
+    }
+  },
+  DeleteMemberPackage: async (req, res) => {
+    const result = await packageMember.deleteOne({ accountID: req.body.id });
+    if (result.deletedCount > 0) {
+      return res.status(200).json({
+        error: "Member Package was delete you can add another member package",
+      });
     }
   },
   search: async (req, res) => {
@@ -268,11 +287,11 @@ const useController = {
 
       return res.status(200).json({
         pageCurrent: page,
-// <<<<<<< HEAD
-//         totalPage: Math.ceil(totalDocuments / limit),
-//         totalDocuments: totalDocuments,
-// =======
-        totalPage: Math.ceil(listCollection.length  / limit),
+        // <<<<<<< HEAD
+        //         totalPage: Math.ceil(totalDocuments / limit),
+        //         totalDocuments: totalDocuments,
+        // =======
+        totalPage: Math.ceil(listCollection.length / limit),
         totalDocuments: listCollection.length,
 
         data: listCollection,
@@ -342,7 +361,6 @@ const useController = {
       });
     }
   },
-
 
   updatePassword: async (req, res) => {
     try {
@@ -487,7 +505,6 @@ const useController = {
             `,
           };
 
-          
           transporter.sendMail(mailOptionsOldEmail, (error, info) => {
             if (error) {
               console.error(
@@ -506,29 +523,54 @@ const useController = {
     }
   },
 
-  NotificationStatus : async ( req , res) => {
-    try { 
+  NotificationStatus: async (req, res) => {
+    try {
       console.log(req.body.id, req.body.notificationID);
-      
+
       const updateUser = await User.findOneAndUpdate(
-        {_id : req.body.id , "notification._id" : req.body.notificationID},
+        { _id: req.body.id, "notification._id": req.body.notificationID },
         {
-          $set : {
-            "notification.$.status" : false
-          } , 
-           
-        }, 
-        { new : true}
-      )
+          $set: {
+            "notification.$.status": false,
+          },
+        },
+        { new: true }
+      );
       if (!updateUser) {
-        return res.status(404).json("Notification or user not found")
+        return res.status(404).json("Notification or user not found");
       }
-       return res.status(200).json({
-          Error : false , 
-          data :  updateUser
-       })
+      return res.status(200).json({
+        Error: false,
+        data: updateUser,
+      });
     } catch (err) {
-      return res.status(500).json(err)
+      return res.status(500).json(err);
+    }
+  },
+  calculateElement : async (req , res) => { 
+      const year = req.query.y; 
+      console.log( typeof parseInt(year));
+      
+    try {
+     const result = await elements.findOne({
+      "Years " : parseInt(year), 
+       "gender" : parseInt(req.query.gender)
+     });  
+      console.log(result);
+      
+    if (result) {
+      return res.status(200).json({
+        elementID : result.elementID, 
+        element :  result.element, 
+        direction : result.direction,
+      });
+       
+    }
+     return  res.status(404).json("Not Found");
+    }catch(err) { 
+      console.log(err);
+      
+      return res.status(500).json({err});
     }
   }
 };

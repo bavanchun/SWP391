@@ -6,8 +6,6 @@ const packageMember  = require("../models/packageMember");
 const middlewareController =  {
     verifyToken : (req , res , next) => {
         const token = req.headers.token || req.headers.authorization; 
-         
-        
         if (token) {
             // su dung cho headers khi co  "Bearer 12341"  token.split(" ")[1]
             const accessToken = token.startsWith("Bearer ")
@@ -48,6 +46,13 @@ const middlewareController =  {
           if (packageMem) { 
           const currentDate = new Date();
           if (new Date(packageMember.expires) < currentDate) {
+            // xóa đi cái packageMember cũ 
+               const result = await packageMember.deleteOne({
+                 accountID: req.body.id,
+               });
+               if (result.deletedCount > 0) {
+                console.log("member package was clear");
+               }
             return  res.status(403).json("Membership expired , Please register again")
           } 
         }else {

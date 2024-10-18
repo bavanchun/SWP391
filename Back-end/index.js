@@ -13,7 +13,7 @@ const postRouter = require("./routes/post");
 
 const memberRouter =require("./routes/member");
 const paymentRouter  =require("./routes/payment");
-
+const orderRouter  =  require("./routes/order");
 const { default: mongoose } = require("mongoose");
 const signInRouter = require("./routes/oauth")
 const bodyParser = require('body-parser');
@@ -51,6 +51,7 @@ app.use("/v1/pay" , paymentRouter);
 app.use("/v1/pond" , pondRouter);
 
 app.use("/v1/post" , postRouter);
+app.use("/v1/order" , orderRouter);
 
 (async () => {
   try {

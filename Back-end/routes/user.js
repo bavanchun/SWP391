@@ -40,6 +40,10 @@ router.post(
   middlewareController.verifyToken,
   useController.subcribeMemberShip
 );
+    ///v1/user/subcribe/del
+router.post("/subcribe/del" ,middlewareController.verifyToken , useController.DeleteMemberPackage);
+
+
 // Search
 router.get(
   "/search",
@@ -81,6 +85,10 @@ router.get("/send-change-email/:token", (req, res) => {
 });
 router.post("/confirmEmail", useController.confirmChangeEmail);
 
-router.post("/notificationStatus" ,  useController.NotificationStatus)
+router.post("/notificationStatus" ,  useController.NotificationStatus);
+
+// Calculate Element 
+router.get("/calculateElement"  , useController.calculateElement);
+
 
 module.exports = router;
